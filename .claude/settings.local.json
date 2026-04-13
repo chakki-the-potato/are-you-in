@@ -4,7 +4,17 @@
       "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
       "Bash(npm install:*)",
       "Bash(npx shadcn@latest init --yes)",
-      "Bash(npx shadcn@latest init --defaults)"
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(npx shadcn@latest add input textarea label badge card dialog separator progress collapsible popover calendar alert skeleton scroll-area --yes)",
+      "Bash(npx shadcn@latest add toast --yes)",
+      "Bash(npx shadcn@latest add sonner --yes)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(xargs sed:*)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/verify\")",
+      "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/options\")",
+      "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/confirm\")"
     ]
   }
 }
