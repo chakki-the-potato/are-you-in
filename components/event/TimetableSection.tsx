@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { useState, useMemo, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { TimetableGrid } from '@/components/timetable/TimetableGrid'
 import { useRealtimeTimetable } from '@/hooks/useRealtimeTimetable'
-import { ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { TimetableSlot, EventDate } from '@/types'
 
@@ -14,7 +13,7 @@ interface TimetableSectionProps {
   slug: string
   eventDates: EventDate[]
   initialSlots: TimetableSlot[]
-  participantId: string
+  participantId: string | null
 }
 
 export function TimetableSection({
@@ -24,20 +23,22 @@ export function TimetableSection({
   initialSlots,
   participantId,
 }: TimetableSectionProps) {
-  const [isOpen, setIsOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [mySlots, setMySlots] = useState<{ slot_start: string; slot_end: string }[]>([])
+  const [activeTab, setActiveTab] = useState<'heatmap' | 'edit'>('heatmap')
+
+  useEffect(() => {
+    if (participantId) setActiveTab('edit')
+  }, [participantId])
 
   const allSlots = useRealtimeTimetable(eventId, initialSlots)
 
-  // Build heatmap matrix: key = "YYYY-MM-DD_HH:MM" → overlap count
   const { slotMatrix, totalParticipants } = useMemo(() => {
     const matrix: Record<string, number> = {}
     const participantSet = new Set<string>()
 
     for (const slot of allSlots) {
       participantSet.add(slot.participant_id)
-      // slot_start format: "YYYY-MM-DDTHH:MM:00" or "YYYY-MM-DDTHH:MM:00.000Z"
       const dt = slot.slot_start.replace('Z', '').split('T')
       const date = dt[0]
       const time = dt[1]?.slice(0, 5) ?? ''
@@ -50,8 +51,8 @@ export function TimetableSection({
     return { slotMatrix: matrix, totalParticipants: participantSet.size }
   }, [allSlots])
 
-  // Pre-populate my existing selections
   const myInitialSlotKeys = useMemo(() => {
+    if (!participantId) return []
     return initialSlots
       .filter((s) => s.participant_id === participantId)
       .map((s) => {
@@ -83,28 +84,65 @@ export function TimetableSection({
   }
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger
-        render={<Button variant="outline" className="w-full justify-between" />}
-      >
-        <span>타임테이블 {isOpen ? '접기' : '펼치기'}</span>
-        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </CollapsibleTrigger>
+    <div>
+      {/* 탭 헤더 */}
+      <div className="flex border-b border-border mb-4">
+        <button
+          onClick={() => setActiveTab('heatmap')}
+          className={cn(
+            'flex-1 py-2 text-sm font-medium transition-colors',
+            activeTab === 'heatmap'
+              ? 'border-b-2 border-indigo-500 text-indigo-600'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          📊 전체 현황
+        </button>
+        <button
+          onClick={() => participantId && setActiveTab('edit')}
+          className={cn(
+            'flex-1 py-2 text-sm font-medium transition-colors',
+            activeTab === 'edit'
+              ? 'border-b-2 border-indigo-500 text-indigo-600'
+              : 'text-muted-foreground',
+            !participantId && 'cursor-not-allowed opacity-40'
+          )}
+          title={!participantId ? '닉네임을 입력해야 사용할 수 있습니다' : undefined}
+        >
+          ✏️ 내 일정{!participantId && <span className="ml-1 text-[10px]">🔒</span>}
+        </button>
+      </div>
 
-      <CollapsibleContent className="mt-4 space-y-4">
+      {/* 전체 현황 탭 */}
+      {activeTab === 'heatmap' && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium">전체 겹침 현황 (히트맵)</h3>
-          <p className="text-xs text-muted-foreground">색이 진할수록 많은 사람이 가능한 시간입니다</p>
-          <TimetableGrid
-            mode="heatmap"
-            eventDates={eventDates}
-            slotMatrix={slotMatrix}
-            totalParticipants={totalParticipants}
-          />
+          <p className="text-xs text-muted-foreground">
+            색이 진할수록 많은 사람이 가능한 시간입니다
+          </p>
+          {totalParticipants === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center border rounded-lg bg-muted/20">
+              <span className="text-3xl mb-3">🕐</span>
+              <p className="text-sm font-medium text-muted-foreground">
+                아직 아무도 가용 시간을 입력하지 않았습니다
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                &apos;내 일정&apos; 탭에서 먼저 입력해 보세요
+              </p>
+            </div>
+          ) : (
+            <TimetableGrid
+              mode="heatmap"
+              eventDates={eventDates}
+              slotMatrix={slotMatrix}
+              totalParticipants={totalParticipants}
+            />
+          )}
         </div>
+      )}
 
-        <div className="border-t pt-4 space-y-2">
-          <h3 className="text-sm font-medium">내 가용 시간 입력</h3>
+      {/* 내 일정 탭 */}
+      {activeTab === 'edit' && participantId && (
+        <div className="space-y-2">
           <p className="text-xs text-muted-foreground">드래그로 가능한 시간을 선택하세요</p>
           <TimetableGrid
             mode="edit"
@@ -116,7 +154,7 @@ export function TimetableSection({
             {isSaving ? '저장 중...' : '저장하기'}
           </Button>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      )}
+    </div>
   )
 }

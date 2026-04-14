@@ -42,8 +42,11 @@ export function TimetableCell({
     const bgColor = getHeatmapColor(overlapCount, totalParticipants)
     return (
       <div
-        className="h-6 w-full border-b border-r border-border/40 relative"
-        style={{ backgroundColor: bgColor || undefined }}
+        className={cn(
+          'h-6 w-full border-b border-r border-border/40 relative',
+          !bgColor && 'bg-indigo-50/60'
+        )}
+        style={bgColor ? { backgroundColor: bgColor } : undefined}
         title={overlapCount > 0 ? `${overlapCount}명 가능` : undefined}
       />
     )

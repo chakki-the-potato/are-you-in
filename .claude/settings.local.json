@@ -14,7 +14,12 @@
       "Bash(echo \"EXIT: $?\")",
       "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/verify\")",
       "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/options\")",
-      "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/confirm\")"
+      "Bash(rm -rf \"/Users/ichanhui/Documents/문서/공부/코딩 공부/are_you_in/app/api/events/[slug]/confirm\")",
+      "Bash(find components:*)",
+      "Bash(find . -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) ! -path \"./node_modules/*\" ! -path \"./.next/*\" -exec grep -l \"generateHours\\\\|renderColumns\\\\|renderSpinner\\\\|TimePickerColumn\" {} \\\\;)",
+      "Bash(echo \"exit: $?\")",
+      "Read(//Users/ichanhui/**)",
+      "Bash(find . -type d -name \"are_you_in\")"
     ]
   }
 }

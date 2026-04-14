@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Progress } from '@/components/ui/progress'
 import { Step1BasicInfo } from './Step1BasicInfo'
 import { Step2DateRange } from './Step2DateRange'
 import type { DateEntry } from './Step2DateRange'
+import { Step3TimeOptions } from './Step3TimeOptions'
+import type { TimeOptionDraft } from './Step3TimeOptions'
 import { Step4Done } from './Step4Done'
 
 interface WizardState {
@@ -12,15 +13,15 @@ interface WizardState {
   title: string
   description: string
   creator_nickname: string
-  password: string
-  min_participants: number
   // Step 2
   dates: DateEntry[]
-  // Step 3 (done)
+  // Step 3
+  time_options: TimeOptionDraft[]
+  // Step 4 (done)
   result_slug: string
 }
 
-const STEP_LABELS = ['기본 정보', '날짜 & 시간', '완료']
+const STEP_LABELS = ['기본 정보', '날짜 & 시간', '시간 옵션', '완료']
 
 export function CreateWizard() {
   const [step, setStep] = useState(1)
@@ -30,9 +31,8 @@ export function CreateWizard() {
     title: '',
     description: '',
     creator_nickname: '',
-    password: '',
-    min_participants: 2,
     dates: [],
+    time_options: [],
     result_slug: '',
   })
 
@@ -51,9 +51,8 @@ export function CreateWizard() {
           title: formData.title,
           description: formData.description || undefined,
           creator_nickname: formData.creator_nickname,
-          password: formData.password,
-          min_participants: formData.min_participants,
           dates: formData.dates,
+          time_options: formData.time_options.length > 0 ? formData.time_options : undefined,
         }),
       })
 
@@ -63,13 +62,12 @@ export function CreateWizard() {
         return
       }
 
-      // Store participant_id for creator
       if (json.participant_id) {
         localStorage.setItem(`participant_${json.slug}`, json.participant_id)
       }
 
       updateForm({ result_slug: json.slug })
-      setStep(3)
+      setStep(4)
     } catch {
       setError('네트워크 오류가 발생했습니다')
     } finally {
@@ -80,16 +78,19 @@ export function CreateWizard() {
   return (
     <div className="max-w-xl mx-auto">
       {/* Step indicator */}
-      {step < 3 && (
-        <div className="mb-8 space-y-2">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            {STEP_LABELS.slice(0, 2).map((label, i) => (
-              <span key={i} className={step === i + 1 ? 'text-primary font-medium' : ''}>
-                {i + 1}. {label}
-              </span>
-            ))}
-          </div>
-          <Progress value={(step / 2) * 100} className="h-1.5" />
+      {step < 4 && (
+        <div className="mb-8 flex">
+          {STEP_LABELS.slice(0, 3).map((label, i) => {
+            const isActive = step === i + 1
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                <span className={`text-xs ${isActive ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                  {i + 1}. {label}
+                </span>
+                <div className={`h-1.5 w-full rounded-full ${isActive ? 'bg-primary' : 'bg-transparent'}`} />
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -103,12 +104,22 @@ export function CreateWizard() {
       )}
 
       {step === 2 && (
+        <Step2DateRange
+          dates={formData.dates}
+          onChange={(dates) => updateForm({ dates })}
+          onNext={() => setStep(3)}
+          onBack={() => setStep(1)}
+        />
+      )}
+
+      {step === 3 && (
         <>
-          <Step2DateRange
+          <Step3TimeOptions
             dates={formData.dates}
-            onChange={(dates) => updateForm({ dates })}
+            options={formData.time_options}
+            onChange={(time_options) => updateForm({ time_options })}
             onNext={handleSubmit}
-            onBack={() => setStep(1)}
+            onBack={() => setStep(2)}
           />
           {isSubmitting && (
             <p className="text-center text-sm text-muted-foreground mt-2">생성 중...</p>
@@ -119,7 +130,7 @@ export function CreateWizard() {
         </>
       )}
 
-      {step === 3 && <Step4Done slug={formData.result_slug} />}
+      {step === 4 && <Step4Done slug={formData.result_slug} />}
     </div>
   )
 }

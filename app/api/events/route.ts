@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { generateSlug } from '@/lib/utils/slug'
 import { createEventSchema } from '@/lib/validations/schemas'
@@ -12,15 +11,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { title, description, creator_nickname, password, min_participants, dates } = parsed.data
+    const { title, description, creator_nickname, dates, time_options } = parsed.data
 
-    const password_hash = await bcrypt.hash(password, 10)
     const slug = generateSlug(title)
 
     // Insert event
     const { data: event, error: eventError } = await getAdminSupabase()
       .from('events')
-      .insert({ title, description, creator_nickname, password_hash, slug, min_participants })
+      .insert({ title, description, creator_nickname, slug })
       .select()
       .single()
 
@@ -35,6 +33,17 @@ export async function POST(req: NextRequest) {
 
     if (datesError) {
       return NextResponse.json({ error: datesError.message }, { status: 500 })
+    }
+
+    // Insert time options if provided
+    if (time_options && time_options.length > 0) {
+      const { error: optionsError } = await getAdminSupabase()
+        .from('time_options')
+        .insert(time_options.map((o) => ({ event_id: event.id, ...o })))
+
+      if (optionsError) {
+        return NextResponse.json({ error: optionsError.message }, { status: 500 })
+      }
     }
 
     // Insert creator as participant

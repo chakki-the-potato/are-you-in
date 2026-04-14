@@ -10,7 +10,6 @@ interface OptionVotingSectionProps {
   options: TimeOption[]
   initialVotes: Vote[]
   participantId: string
-  isConfirmed?: boolean
 }
 
 export function OptionVotingSection({
@@ -19,7 +18,6 @@ export function OptionVotingSection({
   options,
   initialVotes,
   participantId,
-  isConfirmed = false,
 }: OptionVotingSectionProps) {
   const votes = useRealtimeVotes(eventId, initialVotes)
 
@@ -34,9 +32,6 @@ export function OptionVotingSection({
   return (
     <div className="space-y-3">
       <h2 className="font-semibold">우선 옵션 투표</h2>
-      {isConfirmed && (
-        <p className="text-sm text-muted-foreground">이 약속은 확정되었습니다.</p>
-      )}
       <div className="space-y-3">
         {options.map((option) => (
           <VoteCard
@@ -45,7 +40,6 @@ export function OptionVotingSection({
             votes={votes}
             participantId={participantId}
             slug={slug}
-            disabled={isConfirmed}
           />
         ))}
       </div>

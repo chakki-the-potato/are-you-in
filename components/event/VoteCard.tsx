@@ -13,10 +13,9 @@ interface VoteCardProps {
   votes: Vote[]
   participantId: string
   slug: string
-  disabled?: boolean
 }
 
-export function VoteCard({ option, votes, participantId, slug, disabled }: VoteCardProps) {
+export function VoteCard({ option, votes, participantId, slug }: VoteCardProps) {
   const myVote = votes.find((v) => v.participant_id === participantId && v.option_id === option.id)
   const [localResponse, setLocalResponse] = useState<'accept' | 'decline' | undefined>(
     myVote?.response
@@ -31,7 +30,7 @@ export function VoteCard({ option, votes, participantId, slug, disabled }: VoteC
   const timeStr = `${startTime.getUTCHours().toString().padStart(2, '0')}:${startTime.getUTCMinutes().toString().padStart(2, '0')} ~ ${endTime.getUTCHours().toString().padStart(2, '0')}:${endTime.getUTCMinutes().toString().padStart(2, '0')}`
 
   async function handleVote(response: 'accept' | 'decline') {
-    if (disabled || isLoading) return
+    if (isLoading) return
     setIsLoading(true)
     const prev = localResponse
     setLocalResponse(response) // optimistic update
@@ -66,6 +65,9 @@ export function VoteCard({ option, votes, participantId, slug, disabled }: VoteC
       ? declineCount - 1
       : declineCount
 
+  const totalVotes = displayAccept + displayDecline
+  const acceptRatio = totalVotes > 0 ? Math.round((displayAccept / totalVotes) * 100) : 0
+
   return (
     <div className="border rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
@@ -80,24 +82,42 @@ export function VoteCard({ option, votes, participantId, slug, disabled }: VoteC
         </Badge>
       </div>
 
+      {totalVotes > 0 && (
+        <div className="space-y-1">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>✅ 가능 {displayAccept}명</span>
+            <span>❌ 불가 {displayDecline}명</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full bg-indigo-500 transition-all duration-300"
+              style={{ width: `${acceptRatio}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground text-right">
+            {totalVotes}명 응답 · 가능 {acceptRatio}%
+          </p>
+        </div>
+      )}
+
       <div className="flex gap-2">
         <Button
           variant={localResponse === 'accept' ? 'default' : 'outline'}
           size="sm"
           className="flex-1"
           onClick={() => handleVote('accept')}
-          disabled={disabled || isLoading}
+          disabled={isLoading}
         >
-          ✅ 가능 {displayAccept > 0 && <span className="ml-1 font-bold">{displayAccept}</span>}
+          ✅ 가능 {displayAccept > 0 && <span className="ml-1 font-bold tabular-nums">{displayAccept}</span>}
         </Button>
         <Button
           variant={localResponse === 'decline' ? 'destructive' : 'outline'}
           size="sm"
           className="flex-1"
           onClick={() => handleVote('decline')}
-          disabled={disabled || isLoading}
+          disabled={isLoading}
         >
-          ❌ 불가 {displayDecline > 0 && <span className="ml-1 font-bold">{displayDecline}</span>}
+          ❌ 불가 {displayDecline > 0 && <span className="ml-1 font-bold tabular-nums">{displayDecline}</span>}
         </Button>
       </div>
     </div>

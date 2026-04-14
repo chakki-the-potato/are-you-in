@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { TimePicker } from '@/components/ui/time-picker'
 import { X } from 'lucide-react'
 
 export interface DateEntry {
@@ -72,19 +72,9 @@ export function Step2DateRange({ dates, onChange, onNext, onBack }: Step2Props) 
       <div className="space-y-2">
         <Label className="text-sm font-medium">기본 시간대 (날짜 클릭 시 자동 적용)</Label>
         <div className="flex items-center gap-3">
-          <Input
-            type="time"
-            value={defaultStart}
-            onChange={(e) => setDefaultStart(e.target.value)}
-            className="w-32"
-          />
+          <TimePicker value={defaultStart} onChange={setDefaultStart} />
           <span className="text-muted-foreground text-sm">~</span>
-          <Input
-            type="time"
-            value={defaultEnd}
-            onChange={(e) => setDefaultEnd(e.target.value)}
-            className="w-32"
-          />
+          <TimePicker value={defaultEnd} onChange={setDefaultEnd} />
         </div>
       </div>
 
@@ -116,18 +106,14 @@ export function Step2DateRange({ dates, onChange, onNext, onBack }: Step2Props) 
                 <span className="text-sm font-medium w-32 flex-shrink-0">
                   {toDisplayDate(entry.date)}
                 </span>
-                <Input
-                  type="time"
+                <TimePicker
                   value={entry.range_start}
-                  onChange={(e) => updateEntry(i, 'range_start', e.target.value)}
-                  className="w-28"
+                  onChange={(v) => updateEntry(i, 'range_start', v)}
                 />
                 <span className="text-muted-foreground text-sm flex-shrink-0">~</span>
-                <Input
-                  type="time"
+                <TimePicker
                   value={entry.range_end}
-                  onChange={(e) => updateEntry(i, 'range_end', e.target.value)}
-                  className="w-28"
+                  onChange={(v) => updateEntry(i, 'range_end', v)}
                 />
                 {entry.range_start >= entry.range_end && (
                   <span className="text-xs text-destructive flex-shrink-0">시간 오류</span>

@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { EventHeader } from '@/components/event/EventHeader'
 import { EventPageClient } from './EventPageClient'
 import type { Event, EventDate, TimeOption, Participant, Vote, TimetableSlot, AltSuggestion } from '@/types'
 
@@ -29,7 +28,6 @@ async function getEventData(slug: string) {
     getAdminSupabase().from('alt_suggestions').select('*').eq('event_id', event.id).order('created_at'),
   ])
 
-  // Fetch votes for all options
   const optionIds = (options ?? []).map((o) => o.id)
   const { data: votes } = optionIds.length
     ? await getAdminSupabase().from('votes').select('*').in('option_id', optionIds)
@@ -59,7 +57,7 @@ export default async function EventPage({
   return (
     <main className="min-h-screen">
       <nav className="border-b">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link
             href="/"
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -70,12 +68,7 @@ export default async function EventPage({
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-        <EventHeader
-          event={data.event}
-          eventDates={data.eventDates}
-          participantCount={data.participants.length}
-        />
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <EventPageClient initialData={data} slug={slug} />
       </div>
     </main>

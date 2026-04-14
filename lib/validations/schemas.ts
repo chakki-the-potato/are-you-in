@@ -57,3 +57,9 @@ export const altSuggestionSchema = z.object({
   suggested_end: z.string(),
   note: z.string().max(200).optional(),
 })
+
+export const feedbackSchema = z.object({
+  name: z.string().max(50).nullable().optional(),
+  category: z.enum(['bug', 'feature', 'ux', 'other']),
+  message: z.string().min(1, '내용을 입력해주세요').max(1000),
+})
