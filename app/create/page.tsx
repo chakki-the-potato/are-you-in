@@ -1,33 +1,25 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { CreateWizard } from '@/components/create/CreateWizard'
 
 export default function CreatePage() {
   return (
-    <main className="min-h-screen">
-      <nav className="border-b">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            홈으로
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-sm font-medium">약속 만들기</span>
-        </div>
-      </nav>
-
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">새 약속 만들기</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            기본 정보, 날짜·시간, 타임테이블 순서로 입력하세요
-          </p>
-        </div>
-        <CreateWizard />
+    <main className="min-h-screen px-4 py-10 pb-20">
+      <div className="max-w-xl mx-auto mb-5">
+        <Link href="/" className="inline-block">
+          <Button variant="ghost" size="sm" className="gap-1.5">
+            <ArrowLeft className="size-3.5" /> 처음으로
+          </Button>
+        </Link>
       </div>
+
+      <div className="max-w-xl mx-auto mb-7">
+        <h1 className="text-[28px] font-extrabold tracking-tight mb-1.5">새 약속 만들기</h1>
+        <p className="text-muted-foreground text-[15px]">1분이면 충분해요. 다 끝나면 링크가 나옵니다.</p>
+      </div>
+
+      <CreateWizard />
     </main>
   )
 }

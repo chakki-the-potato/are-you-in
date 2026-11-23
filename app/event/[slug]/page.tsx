@@ -1,9 +1,15 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { EventPageClient } from './EventPageClient'
-import type { Event, EventDate, TimeOption, Participant, Vote, TimetableSlot, AltSuggestion } from '@/types'
+import type {
+  Event,
+  EventDate,
+  TimeOption,
+  Participant,
+  Vote,
+  TimetableSlot,
+  AltSuggestion,
+} from '@/types'
 
 async function getEventData(slug: string) {
   const { data: event, error } = await getAdminSupabase()
@@ -44,11 +50,7 @@ async function getEventData(slug: string) {
   }
 }
 
-export default async function EventPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const data = await getEventData(slug)
 
@@ -56,21 +58,7 @@ export default async function EventPage({
 
   return (
     <main className="min-h-screen">
-      <nav className="border-b">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            홈으로
-          </Link>
-        </div>
-      </nav>
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <EventPageClient initialData={data} slug={slug} />
-      </div>
+      <EventPageClient initialData={data} slug={slug} />
     </main>
   )
 }

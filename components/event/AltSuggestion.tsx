@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { Clock, MessageSquarePlus } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { StickerCard } from '@/components/ui/sticker-card'
 import { toast } from 'sonner'
 import type { AltSuggestion as AltSuggestionType } from '@/types'
 
@@ -12,6 +14,12 @@ interface AltSuggestionProps {
   slug: string
   participantId: string
   suggestions: AltSuggestionType[]
+}
+
+function formatKoreanDate(dateStr: string): string {
+  const days = ['일', '월', '화', '수', '목', '금', '토']
+  const d = new Date(`${dateStr}T00:00:00`)
+  return `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`
 }
 
 export function AltSuggestion({ slug, participantId, suggestions }: AltSuggestionProps) {
@@ -23,7 +31,10 @@ export function AltSuggestion({ slug, participantId, suggestions }: AltSuggestio
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit() {
-    if (!startDate || !startTime || !endTime) return
+    if (!startDate || !startTime || !endTime) {
+      toast.error('날짜와 시간을 입력하세요')
+      return
+    }
     setIsLoading(true)
     try {
       const res = await fetch(`/api/events/${slug}/suggest`, {
@@ -37,17 +48,17 @@ export function AltSuggestion({ slug, participantId, suggestions }: AltSuggestio
         }),
       })
       if (!res.ok) {
-        toast.error('제안에 실패했습니다')
+        toast.error('제안에 실패했어요')
         return
       }
-      toast.success('대안 시간을 제안했습니다')
+      toast.success('대안을 제안했어요')
       setIsOpen(false)
       setStartDate('')
       setStartTime('')
       setEndTime('')
       setNote('')
     } catch {
-      toast.error('네트워크 오류가 발생했습니다')
+      toast.error('네트워크 오류가 발생했어요')
     } finally {
       setIsLoading(false)
     }
@@ -57,32 +68,38 @@ export function AltSuggestion({ slug, participantId, suggestions }: AltSuggestio
     <div className="space-y-3">
       {suggestions.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium">대안 시간 제안</h3>
-          <ul className="space-y-2">
-            {suggestions.map((s) => (
-              <li key={s.id} className="border rounded-lg p-3 text-sm">
-                <div className="flex gap-2">
-                  <span>
-                    {s.suggested_start.slice(0, 10)}{' '}
-                    {s.suggested_start.slice(11, 16)} ~{' '}
-                    {s.suggested_end.slice(11, 16)}
-                  </span>
+          <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.08em]">
+            대안 시간 제안 ({suggestions.length})
+          </div>
+          {suggestions.map((s) => (
+            <StickerCard key={s.id} tilt="r" bg="chart3" className="p-3">
+              <div className="flex gap-2 items-center text-[13.5px] font-bold">
+                <Clock className="size-3.5" />
+                {formatKoreanDate(s.suggested_start.slice(0, 10))} ·{' '}
+                {s.suggested_start.slice(11, 16)} — {s.suggested_end.slice(11, 16)}
+              </div>
+              {s.note && (
+                <div className="text-[12.5px] mt-1" style={{ color: 'oklch(0.30 0.020 250)' }}>
+                  {s.note}
                 </div>
-                {s.note && <p className="text-muted-foreground mt-1">{s.note}</p>}
-              </li>
-            ))}
-          </ul>
+              )}
+            </StickerCard>
+          ))}
         </div>
       )}
 
       {!isOpen ? (
-        <Button variant="outline" size="sm" onClick={() => setIsOpen(true)}>
-          + 대안 시간 제안하기
+        <Button
+          variant="outline"
+          onClick={() => setIsOpen(true)}
+          className="w-full justify-start gap-1.5"
+        >
+          <MessageSquarePlus className="size-3.5" /> 대안 시간 제안하기
         </Button>
       ) : (
-        <div className="border rounded-xl p-4 space-y-3">
-          <h3 className="text-sm font-medium">대안 시간 제안</h3>
-          <div className="grid grid-cols-3 gap-2">
+        <StickerCard className="border-dashed p-3.5">
+          <div className="text-[13.5px] font-bold mb-2.5">대안 시간 제안</div>
+          <div className="grid grid-cols-3 gap-2 mb-2">
             <div className="space-y-1">
               <Label htmlFor="alt-date" className="text-xs">날짜</Label>
               <Input id="alt-date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -97,21 +114,21 @@ export function AltSuggestion({ slug, participantId, suggestions }: AltSuggestio
             </div>
           </div>
           <Textarea
-            placeholder="메모 (선택)"
+            placeholder="짧은 메모 (선택)"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             maxLength={200}
             rows={2}
           />
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsOpen(false)} className="flex-1">
+          <div className="flex gap-2 justify-end mt-2.5">
+            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
               취소
             </Button>
-            <Button size="sm" onClick={handleSubmit} disabled={isLoading} className="flex-1">
-              {isLoading ? '제안 중...' : '제안하기'}
+            <Button size="sm" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? '제안 중…' : '제안하기'}
             </Button>
           </div>
-        </div>
+        </StickerCard>
       )}
     </div>
   )

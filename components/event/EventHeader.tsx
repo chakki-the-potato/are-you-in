@@ -1,8 +1,11 @@
+import { Calendar, Users } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import type { Event, EventDate } from '@/types'
 
 function formatKoreanDate(dateStr: string): string {
-  const [, m, d] = dateStr.split('-')
-  return `${Number(m)}월 ${Number(d)}일`
+  const days = ['일', '월', '화', '수', '목', '금', '토']
+  const d = new Date(`${dateStr}T00:00:00`)
+  return `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`
 }
 
 interface EventHeaderProps {
@@ -13,39 +16,26 @@ interface EventHeaderProps {
 
 export function EventHeader({ event, eventDates, participantCount }: EventHeaderProps) {
   return (
-    <div className="space-y-3">
-      <h1 className="text-2xl font-bold leading-tight">{event.title}</h1>
-
+    <div>
+      <h1 className="text-[clamp(24px,3.5vw,30px)] font-extrabold tracking-tight mb-2 text-balance">
+        {event.title}
+      </h1>
       {event.description && (
-        <p className="text-sm text-muted-foreground">{event.description}</p>
+        <p className="text-muted-foreground text-[14.5px] leading-[1.55] mb-3">{event.description}</p>
       )}
-
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-        {eventDates.length > 0 && (
-          <span>
-            📅{' '}
-            {eventDates.length === 1
-              ? `${formatKoreanDate(eventDates[0].date)} (${eventDates[0].range_start.slice(0, 5)}~${eventDates[0].range_end.slice(0, 5)})`
-              : `${eventDates.length}개 날짜`}
-          </span>
-        )}
-        <span>👥 {participantCount}명 참여</span>
-        <span>주최: {event.creator_nickname}</span>
+      <div className="flex flex-wrap gap-1.5 items-center">
+        {eventDates.map((d) => (
+          <Badge key={d.id} variant="muted" className="gap-1 h-6 px-2.5">
+            <Calendar className="size-3" />
+            {formatKoreanDate(d.date)}
+          </Badge>
+        ))}
+        <Badge variant="muted" className="gap-1 h-6 px-2.5">
+          <Users className="size-3" />
+          {participantCount}명
+        </Badge>
+        <Badge variant="muted" className="h-6 px-2.5">주최: {event.creator_nickname}</Badge>
       </div>
-
-      {/* Show all dates if multiple */}
-      {eventDates.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {eventDates.map((ed) => (
-            <span
-              key={ed.id}
-              className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded px-2 py-0.5"
-            >
-              {formatKoreanDate(ed.date)} {ed.range_start.slice(0, 5)}~{ed.range_end.slice(0, 5)}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

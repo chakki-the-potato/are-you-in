@@ -1,70 +1,26 @@
+import { StickerCard } from '@/components/ui/sticker-card'
+
 const REVIEWS = [
-  {
-    name: '민준',
-    role: '대학교 스터디장',
-    text: '카톡에서 날짜 조율하다 지쳐서 써봤는데, 10분 만에 일정 확정했어요 🙌',
-  },
-  {
-    name: '서연',
-    role: '직장 동료',
-    text: '회원가입 없이 바로 투표 가능한 게 최고예요. 다들 부담 없이 참여해요.',
-  },
-  {
-    name: '도현',
-    role: '동아리 총무',
-    text: '타임테이블 드래그 기능 덕분에 MT 날짜 잡는 게 이렇게 쉬울 줄 몰랐어요.',
-  },
-  {
-    name: '지우',
-    role: '프리랜서 팀장',
-    text: '클라이언트랑 미팅 잡을 때 매번 쓰고 있어요. 링크 하나로 해결!',
-  },
-  {
-    name: '현서',
-    role: '취준 스터디',
-    text: '실시간으로 업데이트되니까 스크린샷 찍어서 공유 안 해도 돼서 편해요.',
-  },
-  {
-    name: '윤아',
-    role: '요가 클래스 매니저',
-    text: '회원들 다음 달 수업 스케줄 잡을 때 이거 씁니다. 너무 편해요!',
-  },
-  {
-    name: '재원',
-    role: '사이드 프로젝트 팀',
-    text: '개발팀 주간 회의 시간 정할 때 딱이에요. 구글 폼보다 훨씬 빠릅니다.',
-  },
-  {
-    name: '수빈',
-    role: '밴드 보컬',
-    text: '멤버 다섯 명 합주 날짜 잡는 게 이렇게 쉬운 거였다고요? 진작 알았으면.',
-  },
+  { name: '지원', role: '독서모임 리더', body: '카톡에 링크 던지니까 다들 한 번에 투표하고 끝. When2meet 보다 5배는 빠름.' },
+  { name: '재현', role: '대학생 팀플', body: '닉네임만 쓰면 되니까 멤버 모으는 마찰이 0. 시험기간엔 진짜 생명줄.' },
+  { name: '수민', role: '회사 동호회', body: '우선 옵션 3개 미리 정해놓는 방식이 신의 한 수. 토론이 안 늘어져요.' },
+  { name: '다은', role: '스터디 운영진', body: '히트맵 보면서 "여기 다 되네" 한 마디면 끝. 약속 잡는 회의가 사라짐.' },
+  { name: '한결', role: '동아리 회장', body: '관리자 모드로 옵션 추가하기가 편해요. 회의록 따로 안 써도 됨.' },
+  { name: '예린', role: '프리랜서 모임', body: '대안 시간 제안 기능 진짜 좋음. "이건 안 되는데" 한 번에 정리.' },
 ]
 
-function ReviewCard({ review }: { review: (typeof REVIEWS)[0] }) {
-  return (
-    <div className="shrink-0 w-72 rounded-2xl border bg-card p-5 space-y-3">
-      <p className="text-sm leading-relaxed text-foreground">"{review.text}"</p>
-      <div>
-        <p className="text-sm font-semibold">{review.name}</p>
-        <p className="text-xs text-muted-foreground">{review.role}</p>
-      </div>
-    </div>
-  )
-}
+const BG_CYCLE = ['chart1', 'chart2', 'chart3', 'chart4', 'chart5', 'chart1'] as const
 
 export function ReviewsSection() {
   const doubled = [...REVIEWS, ...REVIEWS]
 
   return (
-    <section className="py-20 overflow-hidden" aria-label="사용자 후기">
-      <div className="max-w-5xl mx-auto px-4 text-center space-y-3 mb-10">
-        <h2 className="text-3xl font-bold">사용자 후기</h2>
-        <p className="text-muted-foreground">실제 사용자들의 이야기</p>
+    <section className="py-12 overflow-hidden" aria-label="사용자 후기">
+      <div className="max-w-5xl mx-auto px-4 mb-7">
+        <div className="font-mono text-xs text-muted-foreground uppercase tracking-[0.08em] mb-2">리뷰</div>
+        <h2 className="text-[clamp(24px,3.5vw,36px)] font-extrabold m-0 tracking-tight">팀이 직접 말해요.</h2>
       </div>
-
       <div className="relative">
-        {/* 양 끝 페이드 마스크 */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10"
@@ -75,14 +31,27 @@ export function ReviewsSection() {
           className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10"
           style={{ background: 'linear-gradient(to left, var(--background), transparent)' }}
         />
-
-        {/* 마퀴 트랙 */}
-        <div
-          className="flex gap-4 animate-marquee"
-          style={{ width: 'max-content' }}
-        >
+        <div className="flex gap-4 animate-marquee py-3" style={{ width: 'max-content' }}>
           {doubled.map((r, i) => (
-            <ReviewCard key={i} review={r} />
+            <StickerCard
+              key={i}
+              tilt={i % 2 === 0 ? 'l' : 'r'}
+              bg={BG_CYCLE[i % BG_CYCLE.length]}
+              className="min-w-[280px] max-w-[280px] p-[18px]"
+            >
+              <div className="text-sm leading-[1.55] mb-3.5" style={{ color: 'oklch(0.22 0.020 250)' }}>
+                &ldquo;{r.body}&rdquo;
+              </div>
+              <div className="flex items-center gap-2.5 text-[12.5px]">
+                <div className="w-7 h-7 rounded-full bg-card border border-border inline-flex items-center justify-center font-bold">
+                  {r.name[0]}
+                </div>
+                <div>
+                  <div className="font-bold">{r.name}</div>
+                  <div style={{ color: 'oklch(0.30 0.020 250)' }}>{r.role}</div>
+                </div>
+              </div>
+            </StickerCard>
           ))}
         </div>
       </div>

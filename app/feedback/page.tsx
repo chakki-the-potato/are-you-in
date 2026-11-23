@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { FeedbackForm } from '@/components/feedback/FeedbackForm'
 
 export const metadata: Metadata = {
@@ -10,28 +11,23 @@ export const metadata: Metadata = {
 
 export default function FeedbackPage() {
   return (
-    <main className="min-h-screen">
-      <nav className="border-b">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            홈으로
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-sm font-medium">피드백</span>
-        </div>
-      </nav>
+    <main className="min-h-screen px-4 py-10 pb-20">
+      <div className="max-w-xl mx-auto mb-5">
+        <Link href="/" className="inline-block">
+          <Button variant="ghost" size="sm" className="gap-1.5">
+            <ArrowLeft className="size-3.5" /> 처음으로
+          </Button>
+        </Link>
+      </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">피드백 보내기</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            서비스 개선에 도움이 되는 의견을 남겨주세요. 모든 피드백을 읽습니다 🙏
-          </p>
-        </div>
+      <div className="max-w-xl mx-auto mb-7">
+        <h1 className="text-[28px] font-extrabold tracking-tight mb-1.5">피드백 보내기</h1>
+        <p className="text-muted-foreground text-[15px] leading-[1.55]">
+          뭐든 좋아요. 짧아도 되고, 길어도 되고. 가입 안 해도 보낼 수 있어요.
+        </p>
+      </div>
+
+      <div className="max-w-xl mx-auto">
         <FeedbackForm />
       </div>
     </main>

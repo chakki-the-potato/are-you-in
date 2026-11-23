@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { StickerCard } from '@/components/ui/sticker-card'
 import { toast } from 'sonner'
 
 interface NicknameGateProps {
@@ -16,19 +16,19 @@ export function NicknameGate({ slug, onJoined }: NicknameGateProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [checked, setChecked] = useState(false)
 
-  // Check localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(`participant_${slug}`)
-    if (stored) {
-      onJoined(stored)
-    }
+    if (stored) onJoined(stored)
     setChecked(true)
   }, [slug, onJoined])
 
   if (!checked) return null
 
   async function handleJoin() {
-    if (!nickname.trim()) return
+    if (!nickname.trim()) {
+      toast.error('닉네임을 입력하세요')
+      return
+    }
     setIsLoading(true)
     try {
       const res = await fetch(`/api/events/${slug}/join`, {
@@ -38,41 +38,43 @@ export function NicknameGate({ slug, onJoined }: NicknameGateProps) {
       })
       const json = await res.json()
       if (!res.ok) {
-        toast.error(json.error ?? '참여에 실패했습니다')
+        toast.error(json.error ?? '참여에 실패했어요')
         return
       }
       localStorage.setItem(`participant_${slug}`, json.participant_id)
-      toast.success(`${nickname}(으)로 참여했습니다!`)
+      toast.success(`반가워요, ${nickname.trim()}!`)
       onJoined(json.participant_id)
     } catch {
-      toast.error('네트워크 오류가 발생했습니다')
+      toast.error('네트워크 오류가 발생했어요')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="border rounded-xl p-6 bg-muted/30 space-y-4">
-      <div>
-        <h3 className="font-semibold">참여하려면 닉네임을 입력하세요</h3>
-        <p className="text-sm text-muted-foreground mt-1">로그인 없이 닉네임만으로 참여할 수 있어요</p>
+    <StickerCard bg="accent" className="p-5">
+      <div className="text-base font-bold mb-1">참여하려면 닉네임을 입력하세요</div>
+      <div className="text-[13px] mb-3" style={{ color: 'oklch(0.30 0.020 250)' }}>
+        가입 없이 한 번만. 같은 이름이면 다시 같은 응답이 보여요.
       </div>
-      <div className="flex gap-3">
-        <div className="flex-1 space-y-1">
-          <Label htmlFor="nickname" className="sr-only">닉네임</Label>
-          <Input
-            id="nickname"
-            placeholder="닉네임 입력"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
-            maxLength={50}
-          />
-        </div>
-        <Button onClick={handleJoin} disabled={isLoading || !nickname.trim()}>
-          {isLoading ? '참여 중...' : '참여하기'}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleJoin()
+        }}
+        className="flex gap-2"
+      >
+        <Input
+          placeholder="예: 지원"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          maxLength={50}
+          autoFocus
+        />
+        <Button type="submit" disabled={isLoading || !nickname.trim()}>
+          {isLoading ? '참여 중…' : '참여하기'}
         </Button>
-      </div>
-    </div>
+      </form>
+    </StickerCard>
   )
 }

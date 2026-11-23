@@ -1,19 +1,22 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { ArrowRight, Bug, MessageSquarePlus, Send, Sparkle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { StickerCard } from '@/components/ui/sticker-card'
+import { cn } from '@/lib/utils'
 
-type Category = 'bug' | 'feature' | 'ux' | 'other'
+type Category = 'bug' | 'feature' | 'other'
 
-const CATEGORIES: { value: Category; label: string }[] = [
-  { value: 'bug', label: '버그 신고' },
-  { value: 'feature', label: '기능 제안' },
-  { value: 'ux', label: 'UX 개선' },
-  { value: 'other', label: '기타' },
+const CATEGORIES: { value: Category; label: string; icon: React.ElementType; bg: string }[] = [
+  { value: 'bug', label: '버그', icon: Bug, bg: 'var(--chart-4)' },
+  { value: 'feature', label: '제안', icon: Sparkle, bg: 'var(--chart-2)' },
+  { value: 'other', label: '기타', icon: MessageSquarePlus, bg: 'var(--chart-3)' },
 ]
 
 export function FeedbackForm() {
@@ -25,7 +28,10 @@ export function FeedbackForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!message.trim()) return
+    if (!message.trim()) {
+      toast.error('내용을 입력해주세요')
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/feedback', {
@@ -39,13 +45,13 @@ export function FeedbackForm() {
       })
       if (!res.ok) {
         const json = await res.json()
-        toast.error(json.error ?? '제출에 실패했습니다')
+        toast.error(json.error ?? '제출에 실패했어요')
         return
       }
       setDone(true)
-      toast.success('피드백이 전달되었습니다. 감사합니다!')
+      toast.success('피드백 보냈어요. 고마워요!')
     } catch {
-      toast.error('네트워크 오류가 발생했습니다')
+      toast.error('네트워크 오류가 발생했어요')
     } finally {
       setLoading(false)
     }
@@ -53,82 +59,94 @@ export function FeedbackForm() {
 
   if (done) {
     return (
-      <div className="border rounded-2xl p-10 text-center space-y-4 bg-muted/30">
-        <div className="text-4xl">🎉</div>
-        <h3 className="font-semibold text-lg">피드백 감사합니다!</h3>
-        <p className="text-sm text-muted-foreground">
-          소중한 의견은 서비스 개선에 반영하겠습니다.
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setDone(false)
-            setMessage('')
-            setName('')
-            setCategory('feature')
-          }}
+      <div className="text-center py-16 px-4">
+        <div
+          className="w-[72px] h-[72px] rounded-full inline-flex items-center justify-center mb-4 animate-pin-attach"
+          style={{ background: 'var(--primary-soft)', color: 'var(--primary-strong)' }}
         >
-          다시 보내기
-        </Button>
+          <Send className="size-7" />
+        </div>
+        <h1 className="text-[26px] font-extrabold tracking-tight mb-2">고마워요!</h1>
+        <p className="text-muted-foreground max-w-[380px] mx-auto leading-[1.6] mb-6">
+          꼼꼼히 읽고 다음 업데이트에 반영할게요. 한 명이 보낸 의견이 모두에게 닿아요.
+        </p>
+        <Link href="/" className="inline-block">
+          <Button className="gap-1.5">
+            처음으로 <ArrowRight className="size-3.5" />
+          </Button>
+        </Link>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* 이름 (선택) */}
-      <div className="space-y-1.5">
-        <Label htmlFor="fb-name">이름 (선택)</Label>
-        <Input
-          id="fb-name"
-          placeholder="홍길동"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={50}
-        />
-      </div>
-
-      {/* 카테고리 */}
-      <div className="space-y-1.5">
-        <Label>카테고리</Label>
-        <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((c) => (
-            <button
-              type="button"
-              key={c.value}
-              onClick={() => setCategory(c.value)}
-              className={`px-3 py-1 rounded-full border text-sm transition-colors ${
-                category === c.value
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-background border-border hover:bg-muted'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+    <StickerCard tilt="none" className="p-6">
+      <form onSubmit={handleSubmit} className="grid gap-[18px]">
+        <div>
+          <Label className="block text-[13px] font-semibold mb-1.5">카테고리</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {CATEGORIES.map((c) => {
+              const Icon = c.icon
+              const active = category === c.value
+              return (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => setCategory(c.value)}
+                  className={cn(
+                    'rounded-[var(--radius-sm)] py-3.5 px-2.5 cursor-pointer transition-all duration-150 border text-foreground',
+                    active ? 'border-primary' : 'border-border'
+                  )}
+                  style={{
+                    background: active ? c.bg : 'var(--card)',
+                    boxShadow: active ? 'var(--shadow-paper)' : 'none',
+                    transform: active ? 'translateY(-1px)' : undefined,
+                  }}
+                >
+                  <div className="mb-1 flex justify-center">
+                    <Icon className="size-3.5" />
+                  </div>
+                  <div className="text-[13px] font-bold">{c.label}</div>
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* 메시지 */}
-      <div className="space-y-1.5">
-        <Label htmlFor="fb-message">
-          내용 <span className="text-destructive">*</span>
-        </Label>
-        <Textarea
-          id="fb-message"
-          placeholder="자유롭게 의견을 남겨주세요..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          maxLength={1000}
-          className="min-h-32"
-          required
-        />
-        <p className="text-xs text-muted-foreground text-right">{message.length}/1000</p>
-      </div>
+        <div>
+          <Label htmlFor="fb-message" className="block text-[13px] font-semibold mb-1.5">
+            내용 <span className="text-destructive font-medium">*</span>
+          </Label>
+          <Textarea
+            id="fb-message"
+            placeholder="어떤 점이 좋았는지, 무엇이 불편했는지 자유롭게 적어주세요."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            maxLength={1000}
+            className="min-h-[140px]"
+            required
+          />
+        </div>
 
-      <Button type="submit" disabled={loading || !message.trim()} className="w-full">
-        {loading ? '제출 중...' : '피드백 보내기'}
-      </Button>
-    </form>
+        <div>
+          <Label htmlFor="fb-name" className="block text-[13px] font-semibold mb-1.5">
+            닉네임 <span className="text-muted-foreground font-medium text-xs">선택</span>
+          </Label>
+          <Input
+            id="fb-name"
+            placeholder="익명으로 보내려면 비워두세요"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={50}
+          />
+        </div>
+
+        <div className="flex justify-end mt-1">
+          <Button type="submit" disabled={loading || !message.trim()} className="gap-1.5">
+            <Send className="size-3.5" /> {loading ? '제출 중…' : '피드백 보내기'}
+          </Button>
+        </div>
+      </form>
+    </StickerCard>
   )
 }

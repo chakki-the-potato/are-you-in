@@ -1,51 +1,35 @@
+import { ChevronRight } from 'lucide-react'
+import { StickerCard } from '@/components/ui/sticker-card'
+
 const STEPS = [
-  {
-    num: 1,
-    icon: '📝',
-    title: '약속 만들기',
-    desc: '제목·날짜·시간 범위를 입력하고 링크를 복사합니다.',
-  },
-  {
-    num: 2,
-    icon: '🔗',
-    title: '링크 공유',
-    desc: '카카오톡, 슬랙, 어디서든 링크 하나로 친구를 초대합니다.',
-  },
-  {
-    num: 3,
-    icon: '👤',
-    title: '닉네임으로 참여',
-    desc: '초대받은 사람은 닉네임만 입력하면 바로 투표·타임테이블 입력 가능.',
-  },
-  {
-    num: 4,
-    icon: '✅',
-    title: '결과 확인',
-    desc: '모두의 응답이 모이면 겹치는 시간이 한눈에 보입니다.',
-  },
+  { n: '01', t: '약속 만들기', s: '제목·날짜·우선 옵션 입력. 1분.' },
+  { n: '02', t: '링크 공유', s: '카톡·슬랙으로 한 번에.' },
+  { n: '03', t: '닉네임으로 참여', s: '가입 없이 한 번 입력.' },
+  { n: '04', t: '확정', s: '히트맵 보고 한 시간 픽.' },
 ]
 
 export function HowToSection() {
   return (
-    <section id="how-to" className="bg-muted/40">
-      <div className="max-w-5xl mx-auto px-4 py-20">
-        <div className="text-center space-y-3 mb-12">
-          <h2 className="text-3xl font-bold">사용 방법</h2>
-          <p className="text-muted-foreground">4단계로 끝납니다</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {STEPS.map((step) => (
-            <div key={step.num} className="flex flex-col gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-background border flex items-center justify-center text-2xl shadow-sm">
-                {step.icon}
+    <section id="how-to" className="max-w-5xl mx-auto px-4 py-12">
+      <div className="mb-7">
+        <div className="font-mono text-xs text-muted-foreground uppercase tracking-[0.08em] mb-2">사용법</div>
+        <h2 className="text-[clamp(24px,3.5vw,36px)] font-extrabold m-0 tracking-tight">4단계면 끝.</h2>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {STEPS.map((s, i) => (
+          <div key={s.n} className="relative">
+            <StickerCard hover className="p-5">
+              <div className="font-mono text-2xl font-bold text-primary mb-3">{s.n}</div>
+              <div className="text-[17px] font-bold mb-1">{s.t}</div>
+              <div className="text-[13.5px] text-muted-foreground leading-[1.55]">{s.s}</div>
+            </StickerCard>
+            {i < STEPS.length - 1 && (
+              <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
+                <ChevronRight className="size-5" />
               </div>
-              <span className="text-xs font-bold text-primary">STEP {step.num}</span>
-              <h3 className="font-semibold">{step.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-            </div>
-          ))}
-        </div>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   )
