@@ -1,4 +1,4 @@
-export type EventStatus = 'open' | 'closed'
+export type EventStatus = 'open' | 'confirmed' | 'closed'
 export type VoteResponse = 'accept' | 'decline'
 
 export interface Event {
@@ -8,6 +8,7 @@ export interface Event {
   creator_nickname: string
   slug: string
   status: EventStatus
+  confirmed_option_id: string | null
   created_at: string
 }
 

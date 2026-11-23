@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { generateSlug } from '@/lib/utils/slug'
 import { createEventSchema } from '@/lib/validations/schemas'
@@ -11,14 +12,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { title, description, creator_nickname, dates, time_options } = parsed.data
+    const { title, description, creator_nickname, admin_password, dates, time_options } = parsed.data
 
     const slug = generateSlug(title)
+    const password_hash = await bcrypt.hash(admin_password, 10)
 
     // Insert event
     const { data: event, error: eventError } = await getAdminSupabase()
       .from('events')
-      .insert({ title, description, creator_nickname, slug })
+      .insert({ title, description, creator_nickname, slug, password_hash })
       .select()
       .single()
 

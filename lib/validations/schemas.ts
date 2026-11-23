@@ -7,6 +7,7 @@ export const createEventSchema = z.object({
   title: z.string().min(1, '제목을 입력해주세요').max(100),
   description: z.string().max(500).optional(),
   creator_nickname: z.string().min(1, '닉네임을 입력해주세요').max(50),
+  admin_password: z.string().min(4, '비밀번호는 4자 이상').max(20),
   // 복수 날짜 (날짜별 시간대 독립 설정)
   dates: z
     .array(
@@ -29,6 +30,14 @@ export const createEventSchema = z.object({
     )
     .max(3)
     .optional(),
+})
+
+export const verifyAdminSchema = z.object({
+  password: z.string().min(1, '비밀번호를 입력해주세요').max(20),
+})
+
+export const confirmEventSchema = z.object({
+  option_id: z.string().uuid(),
 })
 
 export const joinEventSchema = z.object({
